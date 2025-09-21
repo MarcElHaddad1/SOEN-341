@@ -1,8 +1,8 @@
 # SOEN-341 - Project Description
  
-Full Name - ID:
+Full Name - ID - GitHub Username
 
-Marc El Haddad - 40231208 - MarcElHaddad1
+Marc El Haddad - 40231208 - @MarcElHaddad1
 
 Nicholas Gambino - 40282931 - @NichoaasGambino
 
