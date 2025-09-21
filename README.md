@@ -1,7 +1,8 @@
 # SOEN-341 - Project Description
  
 Full Name - ID:
-Marc El Haddad - 40231208
+Marc El Haddad - 40231208 - MarcElHaddad1
+Nicholas Gambino - 40282931 - @NichoaasGambino
 
 
 
