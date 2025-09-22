@@ -19,7 +19,6 @@ This project is a Campus Events & Ticketing Web Application built to help studen
 -  Organizers: Create and manage events, set maximum capacity & the pricing, track attendance of event 
 -  Admins: Moderate events, oversee accounts, view analytics
 
-
 ##  Work In Progress
 -  Project's Structure
 -  Design for users, students, organizers, tickets and events
@@ -27,4 +26,6 @@ This project is a Campus Events & Ticketing Web Application built to help studen
 ##  Goal
 Our goal is to create a simple, user-friendly event management platform that will make university life more engaging and connecting.
 
+## Programming Languages 
+TBD
 
