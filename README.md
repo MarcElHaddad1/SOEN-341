@@ -6,7 +6,7 @@
 | Full Name        | ID        | GitHub |
 |------------------|-----------|--------|
 | Marc El Haddad   | 40231208  | [@MarcElHaddad1](https://github.com/MarcElHaddad1) |
-| Nicholas Gambino | 40282931  | [@NichoaasGambino](https://github.com/NichoaasGambino) |
+| Nicholas Gambin | 40282931  | [@NichoaasGambino](https://github.com/NichoaasGambino) |
 | Angad Singh      | 40285566  | [@angad13067](https://github.com/angad13067) |
 | Marco Patulli    | 40282971  | [@MARC0CND](https://github.com/MARC0CND) |
 | Carlos Mansour   | 40297031  | [@carlosmansour](https://github.com/carlosmansour) |
