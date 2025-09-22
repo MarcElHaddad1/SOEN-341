@@ -27,5 +27,8 @@ This project is a Campus Events & Ticketing Web Application built to help studen
 ##  Goal
 Our goal is to create a simple, user-friendly event management platform that will make university life more engaging and connecting.
 
+## Pull Requests – Sprint 1
+- [#1 docs: update README with project description and user stories](https://github.com/your-org/your-repo/pull/2)
+  
 
 
