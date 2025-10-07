@@ -1,0 +1,19 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #ffffff;
+}
+
+header {
+  background: #004aad;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+#event-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 2rem;
+}
