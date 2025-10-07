@@ -1,18 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Student Event Experience</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Student Events</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1>Student Event Experience</h1>
-  </header>
+  <header class="site-header"><h1>Student Events</h1></header>
 
-  <main id="event-container">
-    
-  </main>
+  <section class="filters">
+    <input id="q" class="input" type="search" placeholder="Search events…">
+    <select id="category" class="input"><option value="">All categories</option></select>
+    <select id="org" class="input"><option value="">All organizations</option></select>
+    <div class="field">
+        <label for="from">From</label>
+        <input id="from" class="input" type="date" />
+    </div>
+    <div class="field">
+        <label for="to">To</label>
+        <input id="to" class="input" type="date" />
+    </div>
+    <button id="clear" class="btn secondary" type="button">Clear</button>
+  </section>
+
+  <main id="events" class="grid"></main>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="modal-close" class="icon-btn">✕</button>
+      <h2 id="m-title"></h2>
+      <p class="muted" id="m-when"></p>
+      <p class="muted" id="m-where"></p>
+      <p id="m-desc"></p>
+      <div class="tags" id="m-tags"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
