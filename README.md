@@ -29,5 +29,6 @@ This project is a Campus Events & Ticketing Web Application built to help studen
 Our goal is to create a simple, user-friendly event management platform that will make university life more engaging and connecting.
 
 ## Programming Languages 
-TBD
-
+HTMl
+CSS
+Java Script
