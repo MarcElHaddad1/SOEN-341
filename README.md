@@ -12,6 +12,7 @@
 | Carlos Mansour   | 40297031  | [@carlosmansour](https://github.com/carlosmansour) |
 | Kenza Tarek    | 40224665  | [@KENZTAR98](https://github.com/kenztar98) |
 | Nicolas Knez    | 40285381  | [@nicolasknez](https://github.com/nicolasknez) |
+|Mohamad El-Darsa | 40280897 | [@ja3fari](https://github.com/ja3fari)|
 
 ##  Overview
 This project is a Campus Events & Ticketing Web Application built to help students discover, organize, and attend campus events. Students can browse events, claim tickets, and check in with QR codes. Organizers can create and manage events, track attendance, and view analytics, while administrators oversee accounts, moderate listings, etc
