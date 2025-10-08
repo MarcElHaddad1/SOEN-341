@@ -17,20 +17,29 @@ body{
   background:var(--bg);
 }
 
+/* Header + top-right button */
 .site-header{
   position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
   backdrop-filter:saturate(120%) blur(6px);
   background:rgba(246,247,251,.8);
   border-bottom:1px solid var(--line);
   padding:16px 20px;
 }
 .site-header h1{margin:0; font-size:22px}
+.badge{
+  margin-left:8px; padding:2px 8px; border-radius:999px;
+  background:#fff; color:var(--brand); border:1px solid var(--brand);
+  font-size:12px; line-height:18px;
+}
 
+/* Filters row */
 .filters{
-  display:flex; flex-wrap:wrap; gap:10px;
+  display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;
   padding:16px 20px; border-bottom:1px solid var(--line);
 }
 
+/* Inputs & buttons */
 .input{
   appearance:none;
   border:1px solid var(--line);
@@ -47,16 +56,15 @@ body{
   border-radius:12px; font-weight:600;
   background:var(--brand); color:#fff;
 }
-.btn.secondary{
-  background:#fff; color:var(--text); border:1px solid var(--line);
-}
+.btn.secondary{ background:#fff; color:var(--text); border:1px solid var(--line); }
+.btn[disabled]{ opacity:.6; cursor:default; }
 
+/* Grid + cards */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
   gap:14px; padding:20px;
 }
-
 .card{
   background:var(--card); border:1px solid var(--line);
   border-radius:var(--radius); padding:16px;
@@ -78,6 +86,7 @@ body{
   border-radius:10px; cursor:pointer; padding:6px 10px;
 }
 
+/* Modals (details + my calendar) */
 .modal{
   position:fixed; inset:0; display:none;
   align-items:center; justify-content:center;
@@ -91,7 +100,22 @@ body{
 }
 .modal-card h2{margin-top:0}
 
-.field { display:flex; flex-direction:column; gap:4px; }
-.field label { font-size:12px; color:var(--muted); line-height:1; }
-.filters { align-items:flex-end; }
+/* Labeled date fields */
+.field{ display:flex; flex-direction:column; gap:4px; }
+.field label{ font-size:12px; color:var(--muted); line-height:1; }
 
+/* My Calendar list */
+.cal-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.cal-item{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px;
+}
+
+/* Toast popup */
+.toast{
+  position:fixed; right:16px; bottom:16px; z-index:100;
+  background:#111; color:#fff; border-radius:10px; padding:10px 14px;
+  opacity:0; transform:translateY(8px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.toast.show{ opacity:1; transform:translateY(0) }

@@ -6,28 +6,43 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header"><h1>Student Events</h1></header>
+  <!-- Header with My Calendar -->
+  <header class="site-header">
+    <h1>Student Events</h1>
+    <button id="my-calendar-btn" class="btn">
+      My Calendar <span id="calendar-count" class="badge">0</span>
+    </button>
+  </header>
 
-  <section class="filters">
-    <input id="q" class="input" type="search" placeholder="Search events…">
-    <select id="category" class="input"><option value="">All categories</option></select>
-    <select id="org" class="input"><option value="">All organizations</option></select>
+  <!-- Filters -->
+  <section class="filters" aria-label="Event filters">
+    <input id="q" class="input" type="search" placeholder="Search events…" aria-label="Search events" />
+    <select id="category" class="input" aria-label="Filter by category">
+      <option value="">All categories</option>
+    </select>
+    <select id="org" class="input" aria-label="Filter by organization">
+      <option value="">All organizations</option>
+    </select>
+
     <div class="field">
-        <label for="from">From</label>
-        <input id="from" class="input" type="date" />
+      <label for="from">From</label>
+      <input id="from" class="input" type="date" />
     </div>
     <div class="field">
-        <label for="to">To</label>
-        <input id="to" class="input" type="date" />
+      <label for="to">To</label>
+      <input id="to" class="input" type="date" />
     </div>
+
     <button id="clear" class="btn secondary" type="button">Clear</button>
   </section>
 
-  <main id="events" class="grid"></main>
+  <!-- Events grid -->
+  <main id="events" class="grid" aria-live="polite"></main>
 
-  <div id="modal" class="modal" aria-hidden="true">
+  <!-- Event Details modal -->
+  <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="modal-card">
-      <button id="modal-close" class="icon-btn">✕</button>
+      <button id="modal-close" class="icon-btn" aria-label="Close">✕</button>
       <h2 id="m-title"></h2>
       <p class="muted" id="m-when"></p>
       <p class="muted" id="m-where"></p>
@@ -36,6 +51,19 @@
     </div>
   </div>
 
+  <!-- My Calendar modal -->
+  <div id="cal-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <button id="cal-close" class="icon-btn" aria-label="Close">✕</button>
+      <h2>My Calendar</h2>
+      <ul id="cal-list" class="cal-list"></ul>
+    </div>
+  </div>
+
+  <!--Toast-->
+  <div id="toast" class="toast" aria-hidden="true"></div>
+
+  <!-- Scripts last -->
   <script src="script.js"></script>
 </body>
 </html>
