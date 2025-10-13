@@ -1,11 +1,11 @@
 //  Events 
 const EVENTS = [
-  { id: "e1", title: "Robotics Club Kickoff", date: "2025-10-15T18:00:00", location: "Engineering Hall A", category: "Technology", organization: "Robotics Club", description: "Meet the team, see demos, and learn sub-teams (mechanical, electrical, software)." },
-  { id: "e2", title: "Campus Music Night",     date: "2025-10-18T19:30:00", location: "Student Center Auditorium", category: "Arts", organization: "Music Society", description: "Live performances by student bands and solo artists." },
-  { id: "e3", title: "Startup Pitch Workshop", date: "2025-10-21T16:00:00", location: "Innovation Lab", category: "Business", organization: "Entrepreneurship Club", description: "Hands-on pitching practice with mentors." },
-  { id: "e4", title: "Intramural Finals: 5v5", date: "2025-10-25T14:00:00", location: "Main Gym", category: "Sports", organization: "Athletics", description: "Cheer at the intramural basketball finals." },
-  { id: "e5", title: "AI Study Jam",           date: "2025-10-28T17:00:00", location: "CS Building 3.120", category: "Technology", organization: "CS Society", description: "Peer-led study session on ML basics. Snacks provided." },
-  { id: "e6", title: "Career Fair Prep",       date: "2025-11-02T12:00:00", location: "Career Center", category: "Careers", organization: "Student Union", description: "Resume clinic, elevator pitch practice, recruiter Q&A." }
+  { id: "e1", title: "Robotics Club Kickoff", date: "2025-10-15T18:00:00", location: "Engineering Hall A", category: "Technology", organization: "Robotics Club", description: "Meet the team, see demos, and learn sub-teams (mechanical, electrical, software).", capacity:50, ticketsClaimed:12 },
+  { id: "e2", title: "Campus Music Night",     date: "2025-10-18T19:30:00", location: "Student Center Auditorium", category: "Arts", organization: "Music Society", description: "Live performances by student bands and solo artists.", capacity:80, ticketsClaimed:30},
+  { id: "e3", title: "Startup Pitch Workshop", date: "2025-10-21T16:00:00", location: "Innovation Lab", category: "Business", organization: "Entrepreneurship Club", description: "Hands-on pitching practice with mentors.", capacity:60, ticketsClaimed:22},
+  { id: "e4", title: "Intramural Finals: 5v5", date: "2025-10-25T14:00:00", location: "Main Gym", category: "Sports", organization: "Athletics", description: "Cheer at the intramural basketball finals.", capacity:120, ticketsClaimed:95},
+  { id: "e5", title: "AI Study Jam",           date: "2025-10-28T17:00:00", location: "CS Building 3.120", category: "Technology", organization: "CS Society", description: "Peer-led study session on ML basics. Snacks provided.", capacity:40, ticketsClaimed:10},
+  { id: "e6", title: "Career Fair Prep",       date: "2025-11-02T12:00:00", location: "Career Center", category: "Careers", organization: "Student Union", description: "Resume clinic, elevator pitch practice, recruiter Q&A.", capacity:100, ticketsClaimed:25}
 ];
 
 // Element refs 
@@ -139,6 +139,16 @@ function openDetails(id) {
   $mWhere.textContent = ev.location;
   $mDesc.textContent  = ev.description;
   $mTags.innerHTML    = `<span class="tag">${ev.category}</span><span class="tag">${ev.organization}</span>`;
+
+  // seats + claim
+  renderModalSeats(ev);
+  const btn = document.getElementById("claim-btn");
+  if (btn) btn.onclick = () => claimTicket(ev);
+
+  // reset QR area each time details opens
+  const wrap = document.getElementById("qr-wrap");
+  if (wrap) wrap.style.display = "none";
+
   $modal.setAttribute("aria-hidden", "false");
 }
 function closeDetails(){ $modal.setAttribute("aria-hidden", "true"); }
@@ -181,6 +191,51 @@ function renderCalList(){
 }
 function openCal(){ renderCalList(); $calModal.setAttribute("aria-hidden","false"); }
 function closeCal(){ $calModal.setAttribute("aria-hidden","true"); }
+
+
+// Store claimed tickets (demo only)
+function loadTickets() {
+  try { return JSON.parse(localStorage.getItem("tickets") || "[]"); }
+  catch { return []; }
+}
+function saveTicket(ticket) {
+  const list = loadTickets();
+  list.push(ticket);
+  localStorage.setItem("tickets", JSON.stringify(list));
+}
+
+// Show seats and enable/disable button
+function renderModalSeats(ev) {
+  const el = document.getElementById("m-seats");
+  if (!el) return;
+  const left = (ev.capacity ?? 0) - (ev.ticketsClaimed ?? 0);
+  el.textContent = `Seats left: ${left}`;
+  const btn = document.getElementById("claim-btn");
+  if (btn) {
+    btn.disabled = left <= 0;
+    btn.textContent = left <= 0 ? "Sold out" : "Claim ticket";
+  }
+}
+
+// Claim flow → generates QR + saves ticket
+async function claimTicket(ev) {
+  const left = (ev.capacity ?? 0) - (ev.ticketsClaimed ?? 0);
+  if (left <= 0) { showToast && showToast("Sorry, sold out"); return; }
+
+  const payload = buildQrPayload(ev.id);
+  await loadQrLib();
+
+  const wrap = document.getElementById("qr-wrap");
+  const box  = document.getElementById("qrcode");
+  wrap.style.display = "block";
+  box.innerHTML = "";
+  new QRCode(box, { text: payload, width: 160, height: 160 });
+
+  ev.ticketsClaimed = (ev.ticketsClaimed || 0) + 1; // demo increment
+  renderModalSeats(ev);  // update seats text
+  saveTicket({ eventId: ev.id, payload, at: new Date().toISOString() });
+  showToast && showToast("Ticket claimed!");
+}
 
 // Listeners 
 
