@@ -182,6 +182,51 @@ function renderCalList(){
 function openCal(){ renderCalList(); $calModal.setAttribute("aria-hidden","false"); }
 function closeCal(){ $calModal.setAttribute("aria-hidden","true"); }
 
+
+// Store claimed tickets (demo only)
+function loadTickets() {
+  try { return JSON.parse(localStorage.getItem("tickets") || "[]"); }
+  catch { return []; }
+}
+function saveTicket(ticket) {
+  const list = loadTickets();
+  list.push(ticket);
+  localStorage.setItem("tickets", JSON.stringify(list));
+}
+
+// Show seats and enable/disable button
+function renderModalSeats(ev) {
+  const el = document.getElementById("m-seats");
+  if (!el) return;
+  const left = (ev.capacity ?? 0) - (ev.ticketsClaimed ?? 0);
+  el.textContent = `Seats left: ${left}`;
+  const btn = document.getElementById("claim-btn");
+  if (btn) {
+    btn.disabled = left <= 0;
+    btn.textContent = left <= 0 ? "Sold out" : "Claim ticket";
+  }
+}
+
+// Claim flow → generates QR + saves ticket
+async function claimTicket(ev) {
+  const left = (ev.capacity ?? 0) - (ev.ticketsClaimed ?? 0);
+  if (left <= 0) { showToast && showToast("Sorry, sold out"); return; }
+
+  const payload = buildQrPayload(ev.id);
+  await loadQrLib();
+
+  const wrap = document.getElementById("qr-wrap");
+  const box  = document.getElementById("qrcode");
+  wrap.style.display = "block";
+  box.innerHTML = "";
+  new QRCode(box, { text: payload, width: 160, height: 160 });
+
+  ev.ticketsClaimed = (ev.ticketsClaimed || 0) + 1; // demo increment
+  renderModalSeats(ev);  // update seats text
+  saveTicket({ eventId: ev.id, payload, at: new Date().toISOString() });
+  showToast && showToast("Ticket claimed!");
+}
+
 // Listeners 
 
 // Filters
