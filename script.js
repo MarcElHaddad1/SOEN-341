@@ -233,3 +233,52 @@ document.addEventListener("keydown", (e) => {
 
 // First paint 
 render();
+
+
+/* ========= QR HELPER (Issue #20) ========= */
+// 1) Stable, anonymous user id for the browser session
+function getUserId() {
+  let id = localStorage.getItem("demoUserId");
+  if (!id) { id = "u" + Math.random().toString(36).slice(2, 8); localStorage.setItem("demoUserId", id); }
+  return id;
+}
+
+// 2) What we encode into the QR
+function buildQrPayload(eventId) {
+  return `EVENT:${eventId}|USER:${getUserId()}|TS:${Date.now()}`;
+}
+
+// 3) Load a tiny QR library (from a CDN) only when needed
+function loadQrLib() {
+  return new Promise((ok, err) => {
+    if (window.QRCode) return ok();
+    const s = document.createElement("script");
+    // Using a well-known CDN for QRCode.js
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+    s.onload = ok; s.onerror = err;
+    document.head.appendChild(s);
+  });
+}
+
+/* -- Temporary test helper, remove before closing #20 if you prefer --
+   Runs once, draws a QR on the page so reviewers can see it works. */
+(async function devQrSmokeTest(){
+  try {
+    // Make a small container in the bottom-right to display the test QR
+    const box = document.createElement("div");
+    box.id = "qr-smoke";
+    box.style.cssText = "position:fixed;right:12px;bottom:12px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px;z-index:9999";
+    box.innerHTML = `<div style="font:12px/1.2 system-ui;margin-bottom:6px;color:#444">QR test</div><div id="qr-test" style="width:120px;height:120px;"></div>`;
+    document.body.appendChild(box);
+
+    // Load lib + draw QR
+    await loadQrLib();
+    new QRCode(document.getElementById("qr-test"), {
+      text: buildQrPayload("e1"),
+      width: 120, height: 120
+    });
+  } catch (e) {
+    console.error("QR smoke test failed:", e);
+  }
+})();
+
