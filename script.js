@@ -139,6 +139,16 @@ function openDetails(id) {
   $mWhere.textContent = ev.location;
   $mDesc.textContent  = ev.description;
   $mTags.innerHTML    = `<span class="tag">${ev.category}</span><span class="tag">${ev.organization}</span>`;
+
+  // seats + claim
+  renderModalSeats(ev);
+  const btn = document.getElementById("claim-btn");
+  if (btn) btn.onclick = () => claimTicket(ev);
+
+  // reset QR area each time details opens
+  const wrap = document.getElementById("qr-wrap");
+  if (wrap) wrap.style.display = "none";
+
   $modal.setAttribute("aria-hidden", "false");
 }
 function closeDetails(){ $modal.setAttribute("aria-hidden", "true"); }
