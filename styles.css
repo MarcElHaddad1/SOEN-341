@@ -86,7 +86,7 @@ body{
   border-radius:10px; cursor:pointer; padding:6px 10px;
 }
 
-/* Modals (details + my calendar) */
+/* Modals (details + my calendar + create) */
 .modal{
   position:fixed; inset:0; display:none;
   align-items:center; justify-content:center;

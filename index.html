@@ -6,12 +6,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Header with My Calendar -->
+  <!-- Header with My Calendar and Create Event -->
   <header class="site-header">
     <h1>Student Events</h1>
-    <button id="my-calendar-btn" class="btn">
-      My Calendar <span id="calendar-count" class="badge">0</span>
-    </button>
+    <div style="display:flex; gap:8px;">
+      <button id="new-event-btn" class="btn secondary">Create Event</button>
+      <button id="my-calendar-btn" class="btn">
+        My Calendar <span id="calendar-count" class="badge">0</span>
+      </button>
+    </div>
   </header>
 
   <!-- Filters -->
@@ -50,7 +53,8 @@
       <div class="tags" id="m-tags"></div>
       <p class="muted" id="m-seats"></p>
       <div class="actions">
-        <button id="claim-btn" class="btn">Claim ticket</button></div>
+        <button id="claim-btn" class="btn">Claim ticket</button>
+      </div>
       <div id="qr-wrap" style="display:none; margin-top:12px;">
         <h3>Your Ticket (QR)</h3>
         <div id="qrcode" style="width:160px;height:160px;"></div>
@@ -67,8 +71,59 @@
     </div>
   </div>
 
-  <!--Toast-->
+  <!-- Create Event modal -->
+  <div id="new-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <button id="new-close" class="icon-btn" aria-label="Close">✕</button>
+      <h2>Create Event</h2>
+
+      <form id="new-form" class="form">
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div class="field">
+            <label for="n-title">Title</label>
+            <input id="n-title" class="input" type="text" required />
+          </div>
+          <div class="field">
+            <label for="n-datetime">Date & time</label>
+            <input id="n-datetime" class="input" type="datetime-local" required />
+          </div>
+          <div class="field">
+            <label for="n-location">Location</label>
+            <input id="n-location" class="input" type="text" required />
+          </div>
+          <div class="field">
+            <label for="n-category">Category</label>
+            <input id="n-category" class="input" type="text" required />
+          </div>
+          <div class="field">
+            <label for="n-org">Organization</label>
+            <input id="n-org" class="input" type="text" required />
+          </div>
+          <div class="field" style="grid-column:1/-1;">
+            <label for="n-desc">Description</label>
+            <textarea id="n-desc" class="input" rows="3" required></textarea>
+          </div>
+          <div class="field">
+            <label for="n-cap">Capacity</label>
+            <input id="n-cap" class="input" type="number" min="1" value="50" required />
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:12px;">
+          <button type="submit" class="btn">Create</button>
+          <button type="button" id="new-cancel" class="btn secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
   <div id="toast" class="toast" aria-hidden="true"></div>
+
+  <!-- QR Code library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+          integrity="sha512-V4YcQGmFz1u7o9rA9pGv2h3q0yC1V4P7q0p8dM6e7JvO/8Z7e0N0wkaPz1e2tWn9S3n9W0eGq+KQbJq8G8aI2w=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <!-- Scripts last -->
   <script src="script.js"></script>
