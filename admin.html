@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin • Student Events</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Admin Dashboard</h1>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="user-badge" class="muted"></span>
+      <button id="logout" class="btn secondary" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="grid" style="max-width:960px;margin:16px auto;">
+    <article class="card">
+      <h2>Events</h2>
+      <p>Open the events app to create or manage events.</p>
+      <div class="actions">
+        <a class="btn" href="index.html">Open Events App</a>
+      </div>
+    </article>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requireRole(['admin']);         // restrict to admins only
+      fillUserBadge('#user-badge');
+
+      const logoutBtn = document.getElementById('logout');
+      logoutBtn.addEventListener('click', () => logoutAndRedirect('login.html'));
+    });
+  </script>
+</body>
+</html>

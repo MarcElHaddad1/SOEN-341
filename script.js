@@ -1,6 +1,4 @@
 // ---------------------- Events setup ----------------------
-
-// Base events
 const BASE_EVENTS = [
   { id: "e1", title: "Robotics Club Kickoff", date: "2025-10-15T18:00:00", location: "Engineering Hall A", category: "Technology", organization: "Robotics Club", description: "Meet the team, see demos, and learn sub-teams (mechanical, electrical, software).", capacity:50, ticketsClaimed:12 },
   { id: "e2", title: "Campus Music Night",     date: "2025-10-18T19:30:00", location: "Student Center Auditorium", category: "Arts", organization: "Music Society", description: "Live performances by student bands and solo artists.", capacity:80, ticketsClaimed:30},
@@ -12,13 +10,58 @@ const BASE_EVENTS = [
 
 // User events persistence
 function loadUserEvents() {
-  try { return JSON.parse(localStorage.getItem("userEvents") || "[]" ); }
+  try { return JSON.parse(localStorage.getItem("userEvents") || "[]"); }
   catch { return []; }
 }
 function saveUserEvents(list) {
   localStorage.setItem("userEvents", JSON.stringify(list));
 }
 let EVENTS = [...BASE_EVENTS, ...loadUserEvents()];
+
+// ---------------------- Attendees store (PERSISTENT) ----------------------
+// Map: { [eventId]: [ { id, email, name, claimedAtISO } ] }
+const LS_ATTENDEES = "attendees:v1";
+
+function loadAttendeesMap() {
+  try { return JSON.parse(localStorage.getItem(LS_ATTENDEES) || "{}"); }
+  catch { return {}; }
+}
+function saveAttendeesMap(map) {
+  localStorage.setItem(LS_ATTENDEES, JSON.stringify(map));
+}
+function getAttendees(eventId) {
+  const map = loadAttendeesMap();
+  return map[eventId] || [];
+}
+function setAttendees(eventId, list) {
+  const map = loadAttendeesMap();
+  map[eventId] = list;
+  saveAttendeesMap(map);
+}
+function seatsLeft(ev) {
+  return (ev.capacity ?? 0) - getAttendees(ev.id).length;
+}
+
+// Identity helper: prefer auth session email; fallback to a per-browser id
+const LOCAL_ID_KEY = "student:id";
+function getLocalId() {
+  let id = localStorage.getItem(LOCAL_ID_KEY);
+  if (!id) {
+    id = 'stu_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem(LOCAL_ID_KEY, id);
+  }
+  return id;
+}
+function currentIdentity() {
+  const s = typeof getSession === "function" ? getSession() : null;
+  if (s && s.email) return { id: s.email, email: s.email, name: s.name || s.email, role: s.role };
+  const id = getLocalId();
+  return { id, email: id + "@local", name: "Local User", role: "student" };
+}
+function hasClaimed(eventId) {
+  const me = currentIdentity();
+  return getAttendees(eventId).some(a => a.id === me.id);
+}
 
 // ---------------------- Elements ----------------------
 const $events   = document.getElementById("events");
@@ -37,7 +80,6 @@ const $mWhere      = document.getElementById("m-where");
 const $mDesc       = document.getElementById("m-desc");
 const $mTags       = document.getElementById("m-tags");
 
-// Personal calendar UI
 const $myCalBtn  = document.getElementById("my-calendar-btn");
 const $calModal  = document.getElementById("cal-modal");
 const $calClose  = document.getElementById("cal-close");
@@ -45,14 +87,12 @@ const $calList   = document.getElementById("cal-list");
 const $calCount  = document.getElementById("calendar-count");
 const $toast     = document.getElementById("toast");
 
-// New Event modal refs
 const $newBtn    = document.getElementById("new-event-btn");
 const $newModal  = document.getElementById("new-modal");
 const $newClose  = document.getElementById("new-close");
 const $newCancel = document.getElementById("new-cancel");
 const $newForm   = document.getElementById("new-form");
 
-// Form fields
 const $nTitle    = document.getElementById("n-title");
 const $nDateTime = document.getElementById("n-datetime");
 const $nLoc      = document.getElementById("n-location");
@@ -61,10 +101,9 @@ const $nOrg      = document.getElementById("n-org");
 const $nDesc     = document.getElementById("n-desc");
 const $nCap      = document.getElementById("n-cap");
 
-// ---------------------- State ----------------------
+// ---------------------- State & storage ----------------------
 const state = { q: "", category: "", org: "", from: "", to: "" };
 
-// Saved events (persist in localStorage)
 const saved = loadSaved();
 updateCalendarCount();
 
@@ -103,22 +142,16 @@ function refreshFilters(keepSelection = true) {
 
   const { categories, orgs } = buildFilterOptions();
 
-  // Rebuild category
   $category.innerHTML = '<option value="">All categories</option>';
-  for (const c of categories) {
-    const opt = document.createElement("option");
-    opt.value = c; opt.textContent = c;
-    $category.appendChild(opt);
-  }
-  // Rebuild org
-  $org.innerHTML = '<option value="">All organizations</option>';
-  for (const o of orgs) {
-    const opt = document.createElement("option");
-    opt.value = o; opt.textContent = o;
-    $org.appendChild(opt);
-  }
+  categories.forEach(c => {
+    const o = document.createElement("option"); o.value=c; o.textContent=c; $category.appendChild(o);
+  });
 
-  // Restore selection if present
+  $org.innerHTML = '<option value="">All organizations</option>';
+  orgs.forEach(o => {
+    const x = document.createElement("option"); x.value=o; x.textContent=o; $org.appendChild(x);
+  });
+
   if (keepSelection) {
     if ([...$category.options].some(o => o.value === prevCat)) $category.value = prevCat;
     if ([...$org.options].some(o => o.value === prevOrg)) $org.value = prevOrg;
@@ -126,7 +159,7 @@ function refreshFilters(keepSelection = true) {
 }
 refreshFilters(false);
 
-// Match filters
+// Filter predicate
 function matchesFilters(ev) {
   const q = state.q.trim().toLowerCase();
   if (q) {
@@ -143,7 +176,7 @@ function matchesFilters(ev) {
   return true;
 }
 
-// ---------------------- Render cards ----------------------
+// ---------------------- Render ----------------------
 function render() {
   const filtered = EVENTS.filter(matchesFilters).sort((a,b) => new Date(a.date) - new Date(b.date));
   $events.innerHTML = "";
@@ -165,6 +198,7 @@ function render() {
       <div class="tags">
         <span class="tag">${ev.category}</span>
         <span class="tag">${ev.organization}</span>
+        <span class="tag" title="Seats left">${seatsLeft(ev)} left</span>
       </div>
       <div class="actions">
         <button class="btn" data-id="${ev.id}" data-action="details">View details</button>
@@ -172,6 +206,16 @@ function render() {
           ${isSaved ? "Added ✓" : "Add to calendar"}
         </button>
       </div>`;
+
+    // If already claimed by current user, show tag
+    if (hasClaimed(ev.id)) {
+      const tags = card.querySelector('.tags');
+      const t = document.createElement('span');
+      t.className = 'tag claimed';
+      t.textContent = 'Claimed';
+      tags && tags.appendChild(t);
+    }
+
     $events.appendChild(card);
   }
 }
@@ -181,26 +225,24 @@ render();
 function openDetails(id) {
   const ev = EVENTS.find(e => e.id === id);
   if (!ev) return;
+
   $mTitle.textContent = ev.title;
   $mWhen.textContent  = fmtDate(ev.date);
   $mWhere.textContent = ev.location;
   $mDesc.textContent  = ev.description;
   $mTags.innerHTML    = `<span class="tag">${ev.category}</span><span class="tag">${ev.organization}</span>`;
 
-  // seats + claim
-  renderModalSeats(ev);
   const btn = document.getElementById("claim-btn");
+  window.__currentEvent = ev;
   if (btn) btn.onclick = () => claimTicket(ev);
 
-  // reset QR area each time details opens
-  const wrap = document.getElementById("qr-wrap");
-  if (wrap) wrap.style.display = "none";
+  renderModalSeatsAndAdmin(ev);
 
   $modal.setAttribute("aria-hidden", "false");
 }
 function closeDetails(){ $modal.setAttribute("aria-hidden", "true"); }
 
-// ---------------------- Personal calendar ----------------------
+// ---------------------- Calendar ----------------------
 function saveEvent(id){
   if (saved.has(id)) return;
   saved.add(id);
@@ -238,7 +280,7 @@ function renderCalList(){
 function openCal(){ renderCalList(); $calModal.setAttribute("aria-hidden","false"); }
 function closeCal(){ $calModal.setAttribute("aria-hidden","true"); }
 
-// ---------------------- Tickets (QR) ----------------------
+// ---------------------- Tickets & QR ----------------------
 function loadTickets() {
   try { return JSON.parse(localStorage.getItem("tickets") || "[]"); }
   catch { return []; }
@@ -248,29 +290,121 @@ function saveTicket(ticket) {
   list.push(ticket);
   localStorage.setItem("tickets", JSON.stringify(list));
 }
-function renderModalSeats(ev) {
-  const el = document.getElementById("m-seats");
-  if (!el) return;
-  const left = (ev.capacity ?? 0) - (ev.ticketsClaimed ?? 0);
-  el.textContent = `Seats left: ${left}`;
-  const btn = document.getElementById("claim-btn");
-  if (btn) {
-    btn.disabled = left <= 0;
-    btn.textContent = left <= 0 ? "Sold out" : "Claim ticket";
-  }
-}
 function buildQrPayload(eventId) {
+  const me = currentIdentity();
   return JSON.stringify({
+    type: "EVENT_TICKET",
     eventId,
+    userId: me.id,
+    email: me.email,
     ts: Date.now(),
     nonce: Math.random().toString(36).slice(2, 10)
   });
 }
-// No-op because we loaded QRCode via <script> tag
-async function loadQrLib() { return; }
+async function loadQrLib() { return; } // already loaded via script tag
 
+// Render seats + role-specific UI (admin sees attendee list)
+function renderModalSeatsAndAdmin(ev) {
+  const el   = document.getElementById("m-seats");
+  const btn  = document.getElementById("claim-btn");
+  const wrap = document.getElementById("qr-wrap");
+  const box  = document.getElementById("qrcode");
+
+  if (!el || !btn || !wrap || !box) return;
+
+  // Seats (PERSISTENT)
+  const left = seatsLeft(ev);
+  el.textContent = `Seats left: ${left}`;
+
+  const me = currentIdentity();
+
+  // Admin cannot claim; show admin attendee management
+  if (me.role === "admin") {
+    btn.disabled = true;
+    btn.textContent = "Admin view — cannot claim";
+    wrap.style.display = "none";
+    renderAdminAttendees(ev);
+    return;
+  }
+
+  // Student: if already claimed, show QR; otherwise normal state
+  if (hasClaimed(ev.id)) {
+    btn.disabled = true;
+    btn.textContent = "Already claimed";
+    wrap.style.display = "block";
+    box.innerHTML = "";
+    new QRCode(box, { text: buildQrPayload(ev.id), width: 160, height: 160 });
+  } else {
+    btn.disabled = left <= 0;
+    btn.textContent = left <= 0 ? "Sold out" : "Claim ticket";
+    wrap.style.display = "none";
+    // Remove admin panel if present
+    const panel = document.getElementById("admin-att-panel");
+    if (panel) panel.remove();
+  }
+}
+
+// ADMIN: render attendee list with remove buttons
+function renderAdminAttendees(ev) {
+  // Ensure a container exists under the modal content
+  let panel = document.getElementById("admin-att-panel");
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "admin-att-panel";
+    panel.className = "card";
+    panel.style.marginTop = "12px";
+    const modalCard = document.querySelector("#modal .modal-card");
+    modalCard.appendChild(panel);
+  }
+
+  const list = getAttendees(ev.id);
+  if (!list.length) {
+    panel.innerHTML = `<h3>Attendees</h3><p class="muted">No attendees yet.</p>`;
+    return;
+  }
+
+  panel.innerHTML = `
+    <h3>Attendees (${list.length})</h3>
+    <ul class="cal-list" id="att-list">
+      ${list.map(a => `
+        <li class="cal-item" data-att-id="${a.id}">
+          <div>
+            <strong>${a.name || a.email}</strong><br>
+            <span class="muted">${a.email}</span>
+          </div>
+          <button class="icon-btn" data-remove-att="${a.id}">Remove</button>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+
+  // Hook remove
+  panel.querySelectorAll("[data-remove-att]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const attId = btn.getAttribute("data-remove-att");
+      const newList = getAttendees(ev.id).filter(a => a.id !== attId);
+      setAttendees(ev.id, newList);
+      showToast("Removed from event");
+      renderModalSeatsAndAdmin(ev);
+      render(); // refresh cards (seats left)
+    });
+  });
+}
+
+// Claim logic (STUDENT ONLY, 1 per user, persistent)
 async function claimTicket(ev) {
-  const left = (ev.capacity ?? 0) - (ev.ticketsClaimed ?? 0);
+  const me = currentIdentity();
+  if (me.role === "admin") {
+    showToast("Admins cannot claim tickets.");
+    return;
+  }
+  if (hasClaimed(ev.id)) {
+    showToast("You already claimed a ticket for this event.");
+    renderModalSeatsAndAdmin(ev);
+    return;
+  }
+
+  const left = seatsLeft(ev);
   if (left <= 0) { showToast("Sorry, sold out"); return; }
 
   const payload = buildQrPayload(ev.id);
@@ -282,13 +416,20 @@ async function claimTicket(ev) {
   box.innerHTML = "";
   new QRCode(box, { text: payload, width: 160, height: 160 });
 
-  ev.ticketsClaimed = (ev.ticketsClaimed || 0) + 1; // demo increment
-  renderModalSeats(ev);  // update seats text
+  // Persist attendee
+  const list = getAttendees(ev.id);
+  list.push({ id: me.id, email: me.email, name: me.name, claimedAtISO: new Date().toISOString() });
+  setAttendees(ev.id, list);
+
+  // Optional: keep your existing tickets log
   saveTicket({ eventId: ev.id, payload, at: new Date().toISOString() });
+
   showToast("Ticket claimed!");
+  renderModalSeatsAndAdmin(ev);
+  render(); // refresh cards (seats left + claimed tag)
 }
 
-// ---------------------- Create Event modal logic ----------------------
+// ---------------------- Create Event modal ----------------------
 function makeEventId() { return "ue-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,6); }
 
 function openNewModal(){ 
@@ -300,7 +441,6 @@ function closeNewModal(){
   $newForm && $newForm.reset();
 }
 
-// Wire up create modal
 if ($newBtn)    $newBtn.addEventListener("click", openNewModal);
 if ($newClose)  $newClose.addEventListener("click", closeNewModal);
 if ($newCancel) $newCancel.addEventListener("click", closeNewModal);
@@ -331,8 +471,7 @@ if ($newForm) {
       category: cat,
       organization: org,
       description: desc,
-      capacity: cap,
-      ticketsClaimed: 0
+      capacity: cap
     };
 
     const userEvents = loadUserEvents();

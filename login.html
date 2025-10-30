@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Login • Student Events</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="auth">
+  <main class="card" style="max-width:420px;margin:6rem auto;padding:24px;">
+    <h1>Sign in</h1>
+    <p class="muted">
+      Admin → <code>admin@school.edu / Admin123!</code><br>
+      Student → <code>student@school.edu / Student1!</code>
+    </p>
+
+    <form id="login-form" class="form" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="pw">Password</label>
+        <input id="pw" class="input" type="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn">Sign in</button>
+    </form>
+
+    <hr style="margin:16px 0;">
+    <details>
+      <summary>Create student account</summary>
+      <form id="signup-form" class="form" novalidate style="margin-top:12px;">
+        <div class="field">
+          <label for="sname">Name</label>
+          <input id="sname" class="input" type="text" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="semail">Email</label>
+          <input id="semail" class="input" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="spw">Password</label>
+          <input id="spw" class="input" type="password" autocomplete="new-password" required />
+        </div>
+        <button type="submit" class="btn secondary">Create account</button>
+      </form>
+    </details>
+
+    <p id="msg" class="muted" style="min-height:1.2em;"></p>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>
+    // If already logged in, redirect to role home
+    (function bounceIfLoggedIn(){
+      const s = getSession();
+      if (s?.role === 'admin')  location.href = 'admin.html';
+      if (s?.role === 'student') location.href = 'student.html';
+    })();
+
+    const msgEl = document.getElementById('msg');
+    const emailInput = document.getElementById('email');
+    const pwInput = document.getElementById('pw');
+
+    document.getElementById('login-form').addEventListener('submit', e => {
+      e.preventDefault();
+      try {
+        const user = login(emailInput.value.trim(), pwInput.value);
+        msgEl.textContent = 'Signed in!';
+        location.href = user.role === 'admin' ? 'admin.html' : 'student.html';
+      } catch (err) {
+        msgEl.textContent = err.message || 'Login failed';
+      }
+    });
+
+    document.getElementById('signup-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const n = sname.value.trim(), e2 = semail.value.trim(), p = spw.value;
+      if (!n || !e2 || !p) { msgEl.textContent = 'Fill all fields'; return; }
+      try {
+        createStudent(e2, p, n);
+        msgEl.textContent = 'Account created! You can sign in now.';
+      } catch (err) {
+        msgEl.textContent = err.message || 'Could not create account.';
+      }
+    });
+  </script>
+</body>
+</html>

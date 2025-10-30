@@ -119,3 +119,16 @@ body{
   transition:opacity .18s ease, transform .18s ease;
 }
 .toast.show{ opacity:1; transform:translateY(0) }
+
+.tag.claimed { background:#e6ffe6; border:1px solid #9ad09a; }
+#claim-btn:disabled { opacity:.6; cursor:not-allowed; }
+
+.auth {
+  background:#f4f6f8;
+  font-family:system-ui, sans-serif;
+}
+.card { background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+.input { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
+.btn { background:#007bff; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; }
+.btn.secondary { background:#eee; color:#333; }
+.field { margin-bottom:12px; }
