@@ -94,3 +94,25 @@ const LS_KEYS = {
     maybeProcessLogoutParam();
   }
   
+  
+
+  // --- ADD BELOW (auth.js) ---
+window.isAdmin   = () => { try { return getSession()?.role === 'admin'; } catch { return false; } };
+window.isTeacher = () => { try { return getSession()?.role === 'teacher'; } catch { return false; } };
+
+// Allow pages to gate by role without changing existing guards
+window.requireRoleAny = function (roles = []) {
+  const s = getSession?.();
+  if (!s || !roles.includes(s.role)) {
+    // fall back to your existing redirect behavior
+    if (typeof logoutAndRedirect === 'function') logoutAndRedirect('login.html');
+    else location.href = 'login.html';
+  }
+};
+
+// Optional: expose current user id/name safely for other scripts
+window.getCurrentUserSafe = () => {
+  const s = getSession?.();
+  return s ? { id: s.id || s.email || s.name || s.userId || s.username || String(s.user || ''), 
+               name: s.name || s.email || 'User' } : null;
+};

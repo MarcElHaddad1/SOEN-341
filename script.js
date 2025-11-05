@@ -534,3 +534,126 @@ document.addEventListener("keydown", (e) => {
     if ($newModal && $newModal.getAttribute("aria-hidden") === "false") closeNewModal();
   }
 });
+
+// --- ADD BELOW (script.js) ---
+(function () {
+  // Safe session read
+  const sess = (window.getSession && getSession()) || null;
+
+  // 2A) Let teachers create events too (index.html currently hides for non-admin)
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const btn = document.getElementById('new-event-btn');
+      if (btn && (isAdmin?.() || isTeacher?.())) {
+        // remove any "display:none" style that earlier code may have set
+        btn.style.removeProperty('display');
+      }
+    } catch {}
+  });
+
+  // 2B) Lightweight attendance store in localStorage (keyed by event key)
+  const ATT_KEY = 'attendeesByEvent';
+  function readMap() {
+    try { return JSON.parse(localStorage.getItem(ATT_KEY) || '{}'); } catch { return {}; }
+  }
+  function writeMap(m) {
+    localStorage.setItem(ATT_KEY, JSON.stringify(m));
+  }
+  function eventKeyFromModal() {
+    // Build a stable-ish key from visible modal fields (no HTML edits)
+    const t = document.getElementById('m-title')?.textContent?.trim() || '';
+    const w = document.getElementById('m-when')?.textContent?.trim() || '';
+    return `${t}@@${w}`; // title + when
+  }
+  function getAttendees(key) {
+    const m = readMap(); return Array.isArray(m[key]) ? m[key] : [];
+  }
+  function addAttendee(key, user) {
+    const m = readMap(); m[key] = getAttendees(key);
+    if (!m[key].some(a => a.id === user.id)) { m[key].push(user); writeMap(m); }
+  }
+  function removeAttendee(key, userId) {
+    const m = readMap(); m[key] = getAttendees(key).filter(a => a.id !== userId); writeMap(m);
+  }
+
+  // 2C) Hook "Claim ticket" to record attendance too (no changes to your existing handler)
+  // We attach an extra listener; your original logic still runs.
+  document.addEventListener('click', (e) => {
+    const target = e.target;
+    if (target && target.id === 'claim-btn') {
+      const u = getCurrentUserSafe?.();
+      if (!u) return;
+      const k = eventKeyFromModal();
+      addAttendee(k, u);
+      // Optionally refresh the attendees panel if visible
+      renderAttendeesPanel(k);
+    }
+  }, true); // capture to ensure we run regardless of order
+
+  // 2D) Inject a "Who's going" panel for teacher/admin when modal opens
+  const modal = document.getElementById('modal');
+  if (modal) {
+    const obs = new MutationObserver(() => {
+      const open = modal.getAttribute('aria-hidden') === 'false';
+      if (!open) return;
+      if (!(isAdmin?.() || isTeacher?.())) return;
+
+      // create container if missing
+      let wrap = modal.querySelector('#attendees-wrap');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'attendees-wrap';
+        wrap.style.marginTop = '16px';
+        wrap.innerHTML = `
+          <h3 style="margin:12px 0 6px 0;">Who’s going</h3>
+          <ul id="attendees-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;"></ul>
+          <p id="attendees-empty" class="muted">No one yet.</p>
+        `;
+        modal.querySelector('.modal-card')?.appendChild(wrap);
+      }
+      // render for current event
+      renderAttendeesPanel(eventKeyFromModal());
+    });
+    obs.observe(modal, { attributes: true, attributeFilter: ['aria-hidden'] });
+  }
+
+  // 2E) Render function (admin gets remove buttons)
+  function renderAttendeesPanel(key) {
+    const list = document.getElementById('attendees-list');
+    const empty = document.getElementById('attendees-empty');
+    if (!list || !empty) return;
+
+    const people = getAttendees(key);
+    list.innerHTML = '';
+    empty.style.display = people.length ? 'none' : '';
+
+    people.forEach(p => {
+      const li = document.createElement('li');
+      li.className = 'cal-item'; // reuse existing style
+      li.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;">
+          <strong>${escapeHtml(p.name || 'User')}</strong>
+          <span class="muted">${escapeHtml(p.id || '')}</span>
+        </div>
+        ${isAdmin?.() ? `<button class="icon-btn" data-remove="${encodeURIComponent(p.id)}" title="Remove">✕</button>` : ''}
+      `;
+      list.appendChild(li);
+    });
+
+    if (isAdmin?.()) {
+      list.querySelectorAll('button[data-remove]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const uid = decodeURIComponent(btn.getAttribute('data-remove'));
+          removeAttendee(key, uid);
+          renderAttendeesPanel(key);
+          showToast?.('Removed from event'); // uses your existing toast if present
+        });
+      });
+    }
+  }
+
+  // 2F) Small utility
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+})();
