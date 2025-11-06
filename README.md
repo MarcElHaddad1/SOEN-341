@@ -33,3 +33,8 @@ Our goal is to create a simple, user-friendly event management platform that wil
 HTMl
 CSS
 Java Script
+
+## Architecture
+
+- **Block Diagram:** see [`system-block.mmd`](./system-block.mmd)
+- **Write-up:** see [`ARCHITECTURE.md`](./ARCHITECTURE.md)
