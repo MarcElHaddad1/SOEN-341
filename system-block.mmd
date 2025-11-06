@@ -1,0 +1,55 @@
+flowchart LR
+  subgraph Browser["User's Browser (Front-End Only)"]
+    subgraph Pages["Pages (UI)"]
+      L[login.html]
+      A[admin.html]
+      S[student.html]
+      I[index.html]
+    end
+
+    subgraph Logic["Application Logic"]
+      SCR[script.js<br/>- Events list & filters<br/>- Details modal & QR<br/>- Admin: create/manage]
+      AUTH[auth.js<br/>- Users DB (seeded)<br/>- Login/Signup<br/>- Session & role guards]
+    end
+
+    subgraph Data["Client Storage (localStorage)"]
+      U[(users)]
+      SES[(session)]
+      E[(events)]
+      AT[(attendees_by_event)]
+    end
+
+    STY[styles.css]
+
+    %% page-to-logic
+    L --> AUTH
+    A --> AUTH
+    S --> AUTH
+    I --> AUTH
+    I --> SCR
+
+    %% logic-to-data
+    AUTH <---> U
+    AUTH <---> SES
+    SCR  <---> E
+    SCR  <---> AT
+
+    %% navigation
+    L -- login -> A
+    L -- signup/student -> S
+    A -- link -> I
+    S -- link -> I
+
+    %% admin-only
+    I -- "Create Event (admin)" --> SCR
+
+    %% utilities
+    QR[QR Generator]:::util
+    SCR --> QR
+
+    classDef util stroke-dasharray: 5 5;
+  end
+
+  %% External
+  BAPI[Browser APIs<br/>(DOM, localStorage, Date)]:::util
+  Browser --- BAPI
