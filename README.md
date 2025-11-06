@@ -36,5 +36,5 @@ Java Script
 
 ## Architecture
 
-- **Block Diagram:** see [`system-block.mmd`](./system-block.mmd)
+- **Block Diagram:** see [`block_diagram.mmd`](./block_diagram.mmd)
 - **Write-up:** see [`ARCHITECTURE.md`](./ARCHITECTURE.md)
