@@ -32,7 +32,7 @@ See the block diagram in [`system-block.mmd`](./system-block.mmd).
   - Session persistence, role guard helpers.
   - Read/write to `localStorage` keys: `users`, `session`.
 
-### Data Model (localStorage keys)
+### Data Model 
 - `users`: array/map of `{ id, email, passwordHash/plain, role }`
 - `session`: `{ userId, role, ... }`
 - `events`: array of `{ id, title, when, where, capacity, ... }`
@@ -41,12 +41,12 @@ See the block diagram in [`system-block.mmd`](./system-block.mmd).
 ### Styling
 - **styles.css**: responsive grid/cards, modals, badges, inputs.
 
-## Known Limitations (by design for demo)
+## Known Limitations
 - Roles/security are **client-side only** and can be bypassed via DevTools.
 - QR codes are **unsigned**; anyone could forge them.
 - Time handling depends on the browser locale/timezone.
 
-## Suggested Backend (next step)
+## Suggested Backend
 - Node/Express (or Firebase) for:
   - Auth (hashed passwords, sessions/JWT).
   - Event CRUD scoped by organizer.
