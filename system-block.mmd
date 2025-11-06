@@ -8,8 +8,8 @@ flowchart LR
     end
 
     subgraph Logic["Application Logic"]
-      SCR[script.js<br/>- Events list & filters<br/>- Details modal & QR<br/>- Admin: create/manage]
-      AUTH[auth.js<br/>- Users DB (seeded)<br/>- Login/Signup<br/>- Session & role guards]
+      SCR["script.js\n• Events list & filters\n• Details modal & QR\n• Admin: create/manage"]
+      AUTH["auth.js\n• Users DB (seeded)\n• Login/Signup\n• Session & role guards"]
     end
 
     subgraph Data["Client Storage (localStorage)"]
@@ -29,27 +29,28 @@ flowchart LR
     I --> SCR
 
     %% logic-to-data
-    AUTH <---> U
-    AUTH <---> SES
-    SCR  <---> E
-    SCR  <---> AT
+    AUTH <--> U
+    AUTH <--> SES
+    SCR  <--> E
+    SCR  <--> AT
 
     %% navigation
-    L -- login -> A
-    L -- signup/student -> S
-    A -- link -> I
-    S -- link -> I
+    L -- login --> A
+    L -- signup/student --> S
+    A -- link --> I
+    S -- link --> I
 
     %% admin-only
     I -- "Create Event (admin)" --> SCR
 
     %% utilities
-    QR[QR Generator]:::util
+    QR["QR Generator"]:::util
     SCR --> QR
 
-    classDef util stroke-dasharray: 5 5;
+    classDef util stroke-dasharray:5 5;
   end
 
   %% External
-  BAPI[Browser APIs<br/>(DOM, localStorage, Date)]:::util
+  BAPI["Browser APIs\n(DOM, localStorage, Date)"]:::util
   Browser --- BAPI
+
