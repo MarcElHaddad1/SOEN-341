@@ -10,7 +10,7 @@ This project is a **front-end only**, browser-based events application. All stat
   - `admin.html` and `student.html` are thin dashboards that link to `index.html`.
   - `index.html` hosts the events UI for everyone. Admins see the Create Event modal.
 
-See the block diagram in [`system-block.mmd`](./system-block.mmd).
+See the block diagram in [`block_diagram.mmd`](./block_diagram.mmd).
 
 ## Components
 
