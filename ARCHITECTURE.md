@@ -1,7 +1,7 @@
 # Architecture
 
 ## Overview
-This project is a **front-end only**, browser-based events application. All state (users, session, events, attendees) is stored in **localStorage**. There is **no backend** yet—this is a demo/MVP.
+This project is a **front-end only**, browser-based events application. All state (users, session, events, attendees) is stored in **localStorage**.
 
 - **Auth & Session**: `auth.js` seeds users, performs login/signup, and stores the current session and roles in localStorage.
 - **App Logic**: `script.js` renders events, handles filters/search, shows the Details modal (with QR for claimed tickets), and exposes admin-only creation/management.
