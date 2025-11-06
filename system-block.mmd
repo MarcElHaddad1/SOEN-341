@@ -1,9 +1,9 @@
 flowchart LR
   %% ========== MAIN APP ==========
-  subgraph Browser["🌐 Browser (Front-End Only App)"]
+  subgraph Browser["🌐 Browser "]
     
     %% Pages Layer
-    subgraph Pages["🧭 Pages (HTML Interface)"]
+    subgraph Pages[" Pages (HTML Interface)"]
       L[login.html]
       A[admin.html]
       S[student.html]
@@ -11,13 +11,13 @@ flowchart LR
     end
 
     %% Logic Layer
-    subgraph Logic["⚙️ App Logic (JavaScript)"]
+    subgraph Logic[" App Logic (JavaScript)"]
       AUTH["auth.js\n• Handles login & signup\n• Stores users & session\n• Controls role access"]
       SCR["script.js\n• Displays events\n• Filters & search\n• Ticket claim & QR code"]
     end
 
     %% Data Layer
-    subgraph Data["💾 localStorage (Browser Database)"]
+    subgraph Data[" localStorage (Browser Database)"]
       USERS[(users)]
       SESSION[(session)]
       EVENTS[(events)]
@@ -50,7 +50,7 @@ flowchart LR
     I -- "Create Event (admin)" --> SCR
 
     %% Utility
-    QR["QR Generator\n(for student tickets)"]:::util
+    QR["QR Generator (for student tickets)"]:::util
     SCR --> QR
 
     classDef util stroke-dasharray:5 5, fill:#f9f9f9;
