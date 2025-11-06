@@ -15,15 +15,21 @@
     </div>
   </header>
 
-  <main class="grid" style="max-width:960px;margin:16px auto;">
-    <article class="card">
-      <h2>Events</h2>
-      <p>Open the events app to create or manage events.</p>
-      <div class="actions">
-        <a class="btn" href="index.html">Open Events App</a>
-      </div>
-    </article>
-  </main>
+ <main class="grid" style="max-width:960px;margin:16px auto;">
+  <article class="card" id="stats-card">
+    <h2>Platform Stats</h2>
+    <p class="muted">Loading…</p>
+  </article>
+
+  <article class="card">
+    <h2>Events</h2>
+    <p>Open the events app to create or manage events.</p>
+    <div class="actions">
+      <a class="btn" href="index.html">Open Events App</a>
+    </div>
+  </article>
+</main>
+
 
   <script src="auth.js"></script>
   <script>
@@ -35,5 +41,48 @@
       logoutBtn.addEventListener('click', () => logoutAndRedirect('login.html'));
     });
   </script>
+
+<script>
+const LS_ATTENDEES = 'attendees:v1';
+function loadAttendeesMap() {
+  try { return JSON.parse(localStorage.getItem(LS_ATTENDEES) || '{}'); }
+  catch { return {}; }
+}
+function loadUserEvents() {
+  try { return JSON.parse(localStorage.getItem('userEvents') || '[]'); }
+  catch { return []; }
+}
+
+// same base events as in script.js
+const BASE_EVENTS = [
+  { id:"e1", capacity:50 }, { id:"e2", capacity:80 }, { id:"e3", capacity:60 },
+  { id:"e4", capacity:120 }, { id:"e5", capacity:40 }, { id:"e6", capacity:100 }
+];
+
+function renderStats() {
+  const card = document.getElementById('stats-card');
+  const userEvents = loadUserEvents();
+  const allEvents = [...BASE_EVENTS, ...userEvents];
+  const att = loadAttendeesMap();
+
+  const totalEvents = allEvents.length;
+  const ticketsIssued = Object.values(att).reduce((s,a)=>s+(a?.length||0),0);
+  const totalCapacity = allEvents.reduce((s,e)=>s+(e.capacity||0),0);
+  const seatsRemaining = allEvents.reduce((s,e)=>s+((e.capacity||0)-(att[e.id]?.length||0)),0);
+
+  card.querySelector('.muted').outerHTML = `
+    <ul class="cal-list">
+      <li class="cal-item"><strong>Total events</strong><span>${totalEvents}</span></li>
+      <li class="cal-item"><strong>Tickets issued</strong><span>${ticketsIssued}</span></li>
+      <li class="cal-item"><strong>Total capacity</strong><span>${totalCapacity}</span></li>
+      <li class="cal-item"><strong>Seats remaining</strong><span>${seatsRemaining}</span></li>
+    </ul>`;
+}
+
+document.addEventListener('DOMContentLoaded', renderStats);
+</script>
+
+
+
 </body>
 </html>
