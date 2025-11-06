@@ -1,56 +1,63 @@
 flowchart LR
-  subgraph Browser["User's Browser (Front-End Only)"]
-    subgraph Pages["Pages (UI)"]
+  %% ========== MAIN APP ==========
+  subgraph Browser["🌐 Browser (Front-End Only App)"]
+    
+    %% Pages Layer
+    subgraph Pages["🧭 Pages (HTML Interface)"]
       L[login.html]
       A[admin.html]
       S[student.html]
       I[index.html]
     end
 
-    subgraph Logic["Application Logic"]
-      SCR["script.js\n• Events list & filters\n• Details modal & QR\n• Admin: create/manage"]
-      AUTH["auth.js\n• Users DB (seeded)\n• Login/Signup\n• Session & role guards"]
+    %% Logic Layer
+    subgraph Logic["⚙️ App Logic (JavaScript)"]
+      AUTH["auth.js\n• Handles login & signup\n• Stores users & session\n• Controls role access"]
+      SCR["script.js\n• Displays events\n• Filters & search\n• Ticket claim & QR code"]
     end
 
-    subgraph Data["Client Storage (localStorage)"]
-      U[(users)]
-      SES[(session)]
-      E[(events)]
-      AT[(attendees_by_event)]
+    %% Data Layer
+    subgraph Data["💾 localStorage (Browser Database)"]
+      USERS[(users)]
+      SESSION[(session)]
+      EVENTS[(events)]
+      ATTENDEES[(attendees_by_event)]
     end
 
+    %% Styling
     STY[styles.css]
 
-    %% page-to-logic
+    %% Page connections
     L --> AUTH
     A --> AUTH
     S --> AUTH
     I --> AUTH
     I --> SCR
 
-    %% logic-to-data
-    AUTH <--> U
-    AUTH <--> SES
-    SCR  <--> E
-    SCR  <--> AT
+    %% Logic <-> Data
+    AUTH <--> USERS
+    AUTH <--> SESSION
+    SCR  <--> EVENTS
+    SCR  <--> ATTENDEES
 
-    %% navigation
-    L -- login --> A
-    L -- signup/student --> S
-    A -- link --> I
-    S -- link --> I
+    %% Navigation flow
+    L -- "Login → Admin" --> A
+    L -- "Signup → Student" --> S
+    A -- "Go to Events" --> I
+    S -- "Go to Events" --> I
 
-    %% admin-only
+    %% Admin-only function
     I -- "Create Event (admin)" --> SCR
 
-    %% utilities
-    QR["QR Generator"]:::util
+    %% Utility
+    QR["QR Generator\n(for student tickets)"]:::util
     SCR --> QR
 
-    classDef util stroke-dasharray:5 5;
+    classDef util stroke-dasharray:5 5, fill:#f9f9f9;
   end
 
-  %% External
+  %% External dependencies
   BAPI["Browser APIs\n(DOM, localStorage, Date)"]:::util
   Browser --- BAPI
+
 
