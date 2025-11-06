@@ -1,87 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Login • Student Events</title>
+  <meta charset="UTF-8" />
+  <title>Login — Student Events</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .center-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .auth-grid {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .auth-grid { grid-template-columns: 1fr; }
+    }
+    .hidden { display: none; }
+    .link-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      font: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .msg { text-align:center; margin:8px 0 16px; }
+    .msg.error { color: #c0392b; }
+    .msg.ok { color: #1e7e34; }
+  </style>
 </head>
-<body class="auth">
-  <main class="card" style="max-width:420px;margin:6rem auto;padding:24px;">
-    <h1>Sign in</h1>
-    <p class="muted">
-      Admin → <code>admin@school.edu / Admin123!</code><br>
-      Student → <code>student@school.edu / Student1!</code>
-    </p>
+<body>
+  <div class="center-screen">
+    <main class="auth-grid">
+      <section style="grid-column: 1 / -1;">
+        <h1 style="text-align:center; margin:0;">Welcome</h1>
+        <p class="muted" style="text-align:center; margin:8px 0 4px;">
+          Sign in or create an account.
+        </p>
+        <div id="msg" class="msg muted"></div>
+      </section>
 
-    <form id="login-form" class="form" novalidate>
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" class="input" type="email" autocomplete="email" required />
-      </div>
-      <div class="field">
-        <label for="pw">Password</label>
-        <input id="pw" class="input" type="password" autocomplete="current-password" required />
-      </div>
-      <button type="submit" class="btn">Sign in</button>
-    </form>
+      <!-- Login (left card) -->
+      <section class="card" style="max-width:520px; margin:0 auto;">
+        <h2>Login</h2>
+        <form id="login-form" class="form" novalidate>
+          <div class="field">
+            <label>Email</label>
+            <input id="lemail" class="input" type="email" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input id="lpw" class="input" type="password" required />
+          </div>
+          <div class="field">
+            <label>Role</label>
+            <select id="lrole" class="input" required>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="field hidden" id="code-field-login">
+            <label>Special Code (Admin/Teacher)</label>
+            <input id="lcode" class="input" type="password" placeholder="ADMIN-2025 or TEACH-2025" />
+          </div>
+          <button class="btn primary" type="submit">Sign in</button>
+        </form>
+        <p class="muted" style="margin-top:8px;">
+          Demo accounts: admin@school.edu / Admin123! · teacher@school.edu / Teach123! · student@school.edu / Student1!<br/>
+          <strong>Note:</strong> Admin/Teacher login requires code: <code>ADMIN-2025</code> or <code>TEACH-2025</code>.
+        </p>
+      </section>
 
-    <hr style="margin:16px 0;">
-    <details>
-      <summary>Create student account</summary>
-      <form id="signup-form" class="form" novalidate style="margin-top:12px;">
-        <div class="field">
-          <label for="sname">Name</label>
-          <input id="sname" class="input" type="text" autocomplete="name" required />
-        </div>
-        <div class="field">
-          <label for="semail">Email</label>
-          <input id="semail" class="input" type="email" autocomplete="email" required />
-        </div>
-        <div class="field">
-          <label for="spw">Password</label>
-          <input id="spw" class="input" type="password" autocomplete="new-password" required />
-        </div>
-        <button type="submit" class="btn secondary">Create account</button>
-      </form>
-    </details>
+      <!-- Create Account (right card) -->
+      <section class="card" style="max-width:520px; margin:0 auto;">
+        <h2>Create account</h2>
+        <button id="open-create" class="btn secondary" type="button" style="margin-top:4px;">Open create account</button>
 
-    <p id="msg" class="muted" style="min-height:1.2em;"></p>
-  </main>
+        <!-- Hidden until the button above is pressed -->
+        <div id="create-wrap" class="hidden" style="margin-top:12px;">
+          <form id="signup-any" class="form" novalidate>
+            <div class="field">
+              <label>Account type</label>
+              <select id="acc-role" class="input" required>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Name</label>
+              <input id="acc-name" class="input" required />
+            </div>
+
+            <div class="field">
+              <label>Email</label>
+              <input id="acc-email" class="input" type="email" required />
+            </div>
+
+            <div class="field">
+              <label>Password</label>
+              <input id="acc-pw" class="input" type="password" required />
+            </div>
+
+            <div class="field hidden" id="code-field-signup">
+              <label>Special Code (Admin/Teacher)</label>
+              <input id="acc-code" class="input" type="password" placeholder="ADMIN-2025 or TEACH-2025" />
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn secondary" type="submit">Create account</button>
+              <button id="close-create" class="link-btn" type="button">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script src="auth.js"></script>
   <script>
-    // If already logged in, redirect to role home
-    (function bounceIfLoggedIn(){
+    // Helper
+    const $ = (id) => document.getElementById(id);
+    const setMsg = (text, type='') => {
+      const m = $('msg');
+      m.textContent = text || '';
+      m.className = 'msg ' + (type || 'muted');
+    };
+
+    // Redirect if already logged in
+    (function redirectIfLoggedIn() {
       const s = getSession();
-      if (s?.role === 'admin')  location.href = 'admin.html';
-      if (s?.role === 'student') location.href = 'student.html';
+      if (!s) return;
+      if (s.role === 'admin')   location.href = 'admin.html';
+      if (s.role === 'teacher') location.href = 'teacher.html';
+      if (s.role === 'student') location.href = 'index.html';
     })();
 
-    const msgEl = document.getElementById('msg');
-    const emailInput = document.getElementById('email');
-    const pwInput = document.getElementById('pw');
+    // Toggle code field for LOGIN
+    const lrole = $('lrole');
+    const codeFieldLogin = $('code-field-login');
+    const lcode = $('lcode');
+    function toggleLoginCodeField() {
+      const needsCode = (lrole.value === 'admin' || lrole.value === 'teacher');
+      codeFieldLogin.classList.toggle('hidden', !needsCode);
+      lcode.required = needsCode;
+    }
+    lrole.addEventListener('change', toggleLoginCodeField);
+    toggleLoginCodeField();
 
-    document.getElementById('login-form').addEventListener('submit', e => {
+    // LOGIN submit
+    $('login-form').addEventListener('submit', (e) => {
       e.preventDefault();
+      setMsg('');
+      const email = $('lemail').value.trim();
+      const pw    = $('lpw').value;
+      const role  = $('lrole').value;
+      const code  = ($('lcode').value || '').trim();
       try {
-        const user = login(emailInput.value.trim(), pwInput.value);
-        msgEl.textContent = 'Signed in!';
-        location.href = user.role === 'admin' ? 'admin.html' : 'student.html';
+        const user = login(email, pw, role, code);
+        if (user.role === 'admin')   location.href = 'admin.html';
+        if (user.role === 'teacher') location.href = 'teacher.html';
+        if (user.role === 'student') location.href = 'index.html';
       } catch (err) {
-        msgEl.textContent = err.message || 'Login failed';
+        setMsg(err.message || 'Login failed', 'error');
       }
     });
 
-    document.getElementById('signup-form').addEventListener('submit', e => {
+    // Create account open/close
+    const openBtn   = $('open-create');
+    const closeBtn  = $('close-create');
+    const createBox = $('create-wrap');
+    openBtn.addEventListener('click', () => {
+      createBox.classList.remove('hidden');
+      openBtn.classList.add('hidden');
+      setMsg('');
+    });
+    closeBtn.addEventListener('click', () => {
+      createBox.classList.add('hidden');
+      openBtn.classList.remove('hidden');
+      $('signup-any').reset();
+      $('code-field-signup').classList.add('hidden');
+      $('acc-code').required = false;
+      setMsg('');
+    });
+
+    // Toggle code field for SIGNUP
+    const accRole = $('acc-role');
+    const codeFieldSignup = $('code-field-signup');
+    const accCode = $('acc-code');
+    function toggleSignupCodeField() {
+      const needsCode = (accRole.value === 'admin' || accRole.value === 'teacher');
+      codeFieldSignup.classList.toggle('hidden', !needsCode);
+      accCode.required = needsCode;
+    }
+    accRole.addEventListener('change', toggleSignupCodeField);
+    toggleSignupCodeField();
+
+    // SIGNUP submit (fixed ID references)
+    $('signup-any').addEventListener('submit', (e) => {
       e.preventDefault();
-      const n = sname.value.trim(), e2 = semail.value.trim(), p = spw.value;
-      if (!n || !e2 || !p) { msgEl.textContent = 'Fill all fields'; return; }
+      setMsg('');
+      const role  = $('acc-role').value;
+      const email = $('acc-email').value.trim();
+      const pw    = $('acc-pw').value;
+      const name  = $('acc-name').value.trim();
+      const code  = ($('acc-code').value || '').trim();
+
       try {
-        createStudent(e2, p, n);
-        msgEl.textContent = 'Account created! You can sign in now.';
+        if (role === 'student') {
+          createStudent(email, pw, name);
+        } else if (role === 'teacher') {
+          createTeacher(email, pw, name, code);
+        } else {
+          createAdmin(email, pw, name, code);
+        }
+        setMsg('Account created! You can sign in now.', 'ok');
+        e.target.reset();
+        toggleSignupCodeField();
       } catch (err) {
-        msgEl.textContent = err.message || 'Could not create account.';
+        // Shows duplicate email or invalid code messages from auth.js
+        setMsg(err.message || 'Could not create account', 'error');
       }
     });
   </script>

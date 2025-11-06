@@ -5,143 +5,149 @@
   <title>Student Events</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Auth guard -->
-  <script src="auth.js"></script>
-  <script>
-    // Require login before viewing events app
-    requireLogin('login.html');
-
-    // Hide Create Event button for non-admin users
-    document.addEventListener('DOMContentLoaded', () => {
-      const s = getSession();
-      const newBtn = document.getElementById('new-event-btn');
-      if (newBtn && (!s || s.role !== 'admin')) {
-        newBtn.style.display = 'none';
-      }
-    });
-  </script>
 </head>
-
 <body>
-  <!-- Header with My Calendar and Create Event -->
+  <!-- Header -->
   <header class="site-header">
     <h1>Student Events</h1>
-    <div style="display:flex; gap:8px;">
-      <button id="new-event-btn" class="btn secondary" type="button" aria-controls="new-modal">Create Event</button>
-      <button id="my-calendar-btn" class="btn" type="button" aria-controls="cal-modal">
-        My Calendar <span id="calendar-count" class="badge">0</span>
-      </button>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <span id="user-badge" class="muted"></span>
+      <button id="my-calendar-btn" class="btn">My Tickets</button>
+      <button id="new-event-btn" class="btn secondary" style="display:none;">Create Event</button>
+      <button id="logout-btn" class="btn danger" onclick="logoutAndRedirect('login.html')">Log out</button>
     </div>
   </header>
 
   <!-- Filters -->
-  <section class="filters" aria-label="Event filters">
-    <input id="q" class="input" type="search" placeholder="Search events…" aria-label="Search events" />
-    <select id="category" class="input" aria-label="Filter by category">
-      <option value="">All categories</option>
-    </select>
-    <select id="org" class="input" aria-label="Filter by organization">
-      <option value="">All organizations</option>
-    </select>
-
-    <div class="field">
-      <label for="from">From</label>
-      <input id="from" class="input" type="date" />
-    </div>
-    <div class="field">
-      <label for="to">To</label>
-      <input id="to" class="input" type="date" />
-    </div>
-
-    <button id="clear" class="btn secondary" type="button">Clear</button>
+  <section class="filters">
+    <input id="q" class="input" placeholder="Search title or description" />
+    <select id="category" class="input"></select>
+    <select id="org" class="input"></select>
+    <input id="from" class="input" type="datetime-local" />
+    <input id="to" class="input" type="datetime-local" />
+    <button id="clear" class="btn">Clear</button>
   </section>
 
-  <!-- Events grid -->
-  <main id="events" class="grid" aria-live="polite"></main>
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
 
-  <!-- Event Details modal -->
-  <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="m-title">
-    <div class="modal-card" role="document">
-      <button id="modal-close" class="icon-btn" type="button" aria-label="Close">✕</button>
+  <!-- Events Grid -->
+  <main id="events" class="grid"></main>
+
+  <!-- Details Modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="modal-close" class="icon-btn" aria-label="Close">✕</button>
       <h2 id="m-title"></h2>
-      <p class="muted" id="m-when"></p>
-      <p class="muted" id="m-where"></p>
-      <p id="m-desc"></p>
-      <div class="tags" id="m-tags"></div>
-      <p class="muted" id="m-seats"></p>
-      <div class="actions">
-        <button id="claim-btn" class="btn" type="button">Claim ticket</button>
+      <p class="muted"><strong>When:</strong> <span id="m-when"></span></p>
+      <p class="muted"><strong>Where:</strong> <span id="m-where"></span></p>
+      <p id="m-desc" style="margin-top:8px;"></p>
+      <div id="m-tags" class="tags" style="margin:8px 0;"></div>
+      <p id="m-seats" class="muted"></p>
+
+      <!-- QR appears here for a claimed ticket -->
+      <div id="qr-wrap" style="display:none; margin:12px 0;">
+        <div id="qrcode"></div>
       </div>
-      <div id="qr-wrap" style="display:none; margin-top:12px;">
-        <h3>Your Ticket (QR)</h3>
-        <div id="qrcode" style="width:160px;height:160px;"></div>
+
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button id="claim-btn" class="btn primary">Claim Ticket</button>
       </div>
+      <!-- Teacher/Admin attendees panel gets injected here as #attend-panel -->
     </div>
   </div>
 
-  <!-- My Calendar modal -->
-  <div id="cal-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cal-title">
-    <div class="modal-card" role="document">
-      <button id="cal-close" class="icon-btn" type="button" aria-label="Close">✕</button>
-      <h2 id="cal-title">My Calendar</h2>
+  <!-- Calendar Modal (My Tickets) -->
+  <div id="cal-modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="cal-close" class="icon-btn" aria-label="Close">✕</button>
+      <h2>My Tickets <span class="muted" id="calendar-count">0</span></h2>
       <ul id="cal-list" class="cal-list"></ul>
+
+      <!-- QR area for My Tickets -->
+      <div id="cal-qr-wrap" style="display:none; margin-top:12px;">
+        <h3>Your ticket QR</h3>
+        <div id="cal-qrcode"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Create Event modal -->
-  <div id="new-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="new-title">
-    <div class="modal-card" role="document">
-      <button id="new-close" class="icon-btn" type="button" aria-label="Close">✕</button>
-      <h2 id="new-title">Create Event</h2>
-
-      <form id="new-form" class="form">
-        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
-          <div class="field">
-            <label for="n-title">Title</label>
-            <input id="n-title" class="input" type="text" required />
-          </div>
-          <div class="field">
-            <label for="n-datetime">Date & time</label>
-            <input id="n-datetime" class="input" type="datetime-local" required />
-          </div>
-          <div class="field">
-            <label for="n-location">Location</label>
-            <input id="n-location" class="input" type="text" required />
-          </div>
-          <div class="field">
-            <label for="n-category">Category</label>
-            <input id="n-category" class="input" type="text" required />
-          </div>
-          <div class="field">
-            <label for="n-org">Organization</label>
-            <input id="n-org" class="input" type="text" required />
-          </div>
-          <div class="field" style="grid-column:1/-1;">
-            <label for="n-desc">Description</label>
-            <textarea id="n-desc" class="input" rows="3" required></textarea>
-          </div>
-          <div class="field">
-            <label for="n-cap">Capacity</label>
-            <input id="n-cap" class="input" type="number" min="1" value="50" required />
-          </div>
+  <!-- Create Event Modal (Admin + Teacher) -->
+  <div id="new-modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="new-close" class="icon-btn" aria-label="Close">✕</button>
+      <h2>Create Event</h2>
+      <form id="new-form" class="form" style="margin-top:8px;">
+        <div class="field">
+          <label>Title</label>
+          <input id="n-title" class="input" required />
         </div>
-
-        <div class="actions" style="margin-top:12px;">
-          <button type="submit" class="btn">Create</button>
-          <button type="button" id="new-cancel" class="btn secondary">Cancel</button>
+        <div class="field">
+          <label>Date & Time</label>
+          <input id="n-datetime" class="input" type="datetime-local" required />
+        </div>
+        <div class="field">
+          <label>Location</label>
+          <input id="n-location" class="input" required />
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input id="n-category" class="input" required />
+        </div>
+        <div class="field">
+          <label>Organization</label>
+          <input id="n-org" class="input" required />
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea id="n-desc" class="input" rows="3" required></textarea>
+        </div>
+        <div class="field">
+          <label>Capacity</label>
+          <input id="n-cap" class="input" type="number" min="1" value="20" required />
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button type="submit" class="btn primary">Create</button>
+          <button type="button" id="new-cancel" class="btn">Cancel</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="toast" aria-hidden="true" aria-live="polite"></div>
+  <!-- Scripts -->
+  <script src="auth.js"></script>
 
-  <!-- QR library + main script -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="script.js" defer></script>
+  <!-- Robust QR loader: CDN then local fallback -->
+  <script>
+    (function loadQRLib() {
+      function add(src){ var s=document.createElement('script'); s.src=src; document.head.appendChild(s); }
+      if (!window.QRCode) add("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js");
+      setTimeout(function(){ if(!window.QRCode) add("qrcode.min.js"); }, 800);
+    })();
+  </script>
 
-  <noscript>JavaScript is required to use this app.</noscript>
+  <script>
+    // Guard page
+    requireLogin('login.html');
+
+    // Badge
+    document.addEventListener('DOMContentLoaded', () => {
+      fillUserBadge('#user-badge');
+    });
+
+    // Create Event button visibility
+    document.addEventListener('DOMContentLoaded', () => {
+      const s = getSession();
+      const newBtn = document.getElementById('new-event-btn');
+      if (!newBtn) return;
+      if (s && (s.role === 'admin' || s.role === 'teacher')) {
+        newBtn.style.display = 'inline-block';
+      } else {
+        newBtn.style.display = 'none';
+      }
+    });
+  </script>
+
+  <script src="script.js"></script>
 </body>
 </html>

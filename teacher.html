@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Teacher • Student Events</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Teacher Home</h1>
+    <div style="display:flex;gap:8px;">
+      <span id="user-badge" class="muted"></span>
+      <a class="btn secondary" href="index.html">Open Events App</a>
+      <button id="logout" class="btn secondary">Log out</button>
+    </div>
+  </header>
+
+  <main class="grid" style="max-width:960px;margin:16px auto;">
+    <article class="card">
+      <h2>Create & View Events</h2>
+      <p>Teachers can create events and view who is attending.</p>
+      <a class="btn" href="index.html">Go to Events</a>
+    </article>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded',()=>{
+      requireRole(['teacher']);
+      fillUserBadge('#user-badge');
+      document.getElementById('logout').onclick=()=>logoutAndRedirect('login.html');
+    });
+  </script>
+</body>
+</html>
