@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm init -y
+        npm install eslint --save-dev
+        npm install html-validator-cli --save-dev
+        npm install stylelint stylelint-config-standard --save-dev
+        
+    - name: Initialize ESLint config
+      run: |
+        echo '{ "extends": "eslint:recommended", "env": { "browser": true }, "parserOptions": { "ecmaVersion": 2020 } }' > .eslintrc.json
+        
+    - name: Initialize Stylelint config  
+      run: |
+        echo '{ "extends": "stylelint-config-standard" }' > .stylelintrc.json
+
+    - name: Check JavaScript
+      run: npx eslint *.js --quiet
+      
+    - name: Check CSS
+      run: npx stylelint "*.css"
+      
+    - name: Validate HTML
+      run: |
+        find . -name "*.html" -exec npx html-validate {} \;
