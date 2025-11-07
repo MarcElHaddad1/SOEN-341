@@ -167,6 +167,9 @@ function showDetails(id){
     qrCanvas.replaceChildren();
   }
 
+  // Add download button for teachers/admins above the attendees list
+  const downloadBtn = `<button id="download-btn" class="btn secondary" style="margin:8px 0;">Download Attendee List (CSV)</button>`;
+  
   // Build Attendees panel for Teacher/Admin
   let adminPanel = q('#attend-panel');
   if (!adminPanel){
@@ -175,13 +178,24 @@ function showDetails(id){
     adminPanel.style.marginTop = '12px';
     q('.modal-card').appendChild(adminPanel);
   }
+  
   if (isAdmin() || isTeacher()){
     const rows = e.attendees.map(a=>`
       <li class="cal-item">
         <span>${a.name} &lt;${a.email}&gt;</span>
         ${isAdmin() ? `<button class="icon-btn" data-act="kick" data-id="${e.id}" data-email="${a.email}">Remove</button>` : ''}
       </li>`).join('');
+
+    // Updated download button - only show tooltip when disabled
+    const downloadBtn = `<button id="download-btn" class="btn secondary" 
+      style="margin:8px 0; opacity:${e.attendees.length ? '1' : '0.5'}; cursor:${e.attendees.length ? 'pointer' : 'not-allowed'}" 
+      ${!e.attendees.length ? 'title="Cannot download - there are no attendees yet"' : ''}
+      ${!e.attendees.length ? 'disabled' : ''}>
+      Download Attendee List (CSV)
+    </button>`;
+
     adminPanel.innerHTML = `
+      ${downloadBtn}
       <h3>Attendees (${e.attendees.length})</h3>
       <ul class="cal-list">${rows || '<li class="muted">No attendees yet.</li>'}</ul>`;
   } else {
@@ -333,6 +347,33 @@ function wireGlobal(){
       newBtn.style.display='none';
     }
   }
+
+  // Add CSV download handler
+  modal?.addEventListener('click', ev => {
+    if (ev.target.matches('#download-btn')) {
+      const id = q('#claim-btn').dataset.id;
+      const e = loadEvents().find(x => x.id === id);
+      if (!e || !e.attendees.length) return;
+
+      // Create CSV content
+      const headers = ['Name', 'Email', 'Role', 'Ticket ID'];
+      const rows = e.attendees.map(a => [a.name, a.email, a.role, a.ticketId]);
+      const csv = [headers, ...rows]
+        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .join('\n');
+
+      // Trigger download
+      const blob = new Blob([csv], {type: 'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${e.title}-attendees.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  });
 
   renderList();
   renderCalendar();
