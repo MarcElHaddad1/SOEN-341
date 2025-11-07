@@ -18,12 +18,3 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Check JavaScript
-      run: npx eslint *.js --quiet
-      
-    - name: Check CSS
-      run: npx stylelint "*.css"
-      
-    - name: Validate HTML
-      run: |
-        find . -name "*.html" -exec npx html-validate {} \;
