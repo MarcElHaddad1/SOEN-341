@@ -17,4 +17,28 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm init -y
+        npm install eslint@8 --save-dev
+        npm install html-validator-cli --save-dev
+        npm install stylelint stylelint-config-standard --save-dev
+        npm install jest --save-dev
 
+    - name: Initialize Stylelint config  
+      run: |
+        echo '{ "extends": "stylelint-config-standard" }' > .stylelintrc.json
+
+    - name: Check JavaScript
+      run: npx eslint *.js --quiet
+      
+    - name: Check CSS
+      run: npx stylelint "*.css"
+      
+    - name: Validate HTML
+      run: |
+        find . -name "*.html" -exec npx html-validate {} \;
+
+    - name: Run automated tests
+      run: npx jest
