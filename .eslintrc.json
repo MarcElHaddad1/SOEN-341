@@ -5,6 +5,11 @@
     "node": true,
     "jest": true
   },
+  "globals": {
+    "currentUser": "readonly",
+    "QRCode": "readonly",
+    "downloadBtn": "readonly"
+  },
   "extends": "eslint:recommended",
   "parserOptions": {
     "ecmaVersion": 2020,
