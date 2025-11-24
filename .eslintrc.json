@@ -7,13 +7,14 @@
   },
   "globals": {
     "currentUser": "readonly",
-    "QRCode": "readonly",
-    "downloadBtn": "readonly"
+    "QRCode": "readonly"
   },
   "extends": "eslint:recommended",
   "parserOptions": {
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
-  "rules": {}
+  "rules": {
+    "no-unused-vars": "off"
+  }
 }
