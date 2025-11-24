@@ -1,5 +1,5 @@
 /* ===== script.js ===== */
-/* global currentUser, QRCode, downloadBtn */
+/* global currentUser, QRCode */
 const LS = { EVENTS: 'events:v2' };
 
 function loadEvents(){ try{ return JSON.parse(localStorage.getItem(LS.EVENTS))||[]}catch{ return [] } }
