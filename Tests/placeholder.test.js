@@ -1,4 +1,3 @@
-test('test', () => { expect(true).toBe(true); });
 
 const {
   passesFilter,
