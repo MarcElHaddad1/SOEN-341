@@ -7,16 +7,7 @@ const {
   SAMPLE_EVENTS
 } = require('../src/js/appLogic.js' );
 
-const SAMPLE_EVENTS = [
-  {
-    id: "e1",
-    title: "Robotics Club Kickoff",
-    description: "Intro meeting, demos, and sub-team signups.",
-    location: "Hall A",
-    category: "Club",
-    organization: "Robotics Club",
-    date: "2025-10-15T18:00:00",
-  },
+
   {
     id: "e2",
     title: "Campus Music Night",
