@@ -1,9 +1,11 @@
+
 const {
-  passesFilter,
   filterEvents,
-  toggleSaved,
-  getSavedEvents,
-} = require("../src/js/appLogic");
+  passesFilter,
+  parseDate,
+  isWithinDateRange,
+  SAMPLE_EVENTS
+} = require('../src/js/appLogic.js' );
 
 const SAMPLE_EVENTS = [
   {
