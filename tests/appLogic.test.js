@@ -1,11 +1,9 @@
-
 const {
   filterEvents,
   passesFilter,
-  parseDate,
-  isWithinDateRange,
   SAMPLE_EVENTS
-} = require('../src/js/appLogic.js' );
+} = require('../src/js/appLogic.js');
+
 
 
 describe("passesFilter / filterEvents (Sprint 3 event browsing)", () => {
