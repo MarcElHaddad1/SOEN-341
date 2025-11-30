@@ -1,5 +1,5 @@
 /* ===== script.js ===== */
-/* global currentUser, QRCode */
+// ESLint globals defined in .eslintrc.json
 const LS = { EVENTS: 'events:v2' };
 
 function loadEvents() {
