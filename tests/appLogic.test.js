@@ -8,26 +8,6 @@ const {
 } = require('../src/js/appLogic.js' );
 
 
-  {
-    id: "e2",
-    title: "Campus Music Night",
-    description: "Live performances by student bands.",
-    location: "Student Center",
-    category: "Social",
-    organization: "Music Society",
-    date: "2025-10-18T20:00:00",
-  },
-  {
-    id: "e3",
-    title: "Career Fair",
-    description: "Meet employers and practice networking.",
-    location: "Main Hall",
-    category: "Career",
-    organization: "Career Services",
-    date: "2025-11-01T10:00:00",
-  },
-];
-
 describe("passesFilter / filterEvents (Sprint 3 event browsing)", () => {
   test("no filters returns all events", () => {
     const state = { q: "", category: "", org: "", from: "", to: "" };
