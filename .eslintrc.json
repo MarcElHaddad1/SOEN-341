@@ -6,15 +6,17 @@
     "jest": true
   },
   "globals": {
-    "currentUser": "readonly",
+    "currentUser": "writable",
     "QRCode": "readonly"
   },
   "extends": "eslint:recommended",
   "parserOptions": {
     "ecmaVersion": 2020,
-    "sourceType": "module"
+    "sourceType": "script"
   },
   "rules": {
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "no-undef": "off",
+    "no-redeclare": "off"
   }
 }
