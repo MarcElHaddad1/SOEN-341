@@ -1,7 +1,10 @@
 const {
   filterEvents,
-  passesFilter
+  passesFilter,
+  toggleSaved,
+  getSavedEvents
 } = require('../src/js/appLogic.js');
+
 
 const SAMPLE_EVENTS = [
   {
