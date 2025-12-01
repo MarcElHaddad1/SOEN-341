@@ -1,8 +1,37 @@
 const {
   filterEvents,
-  passesFilter,
-  SAMPLE_EVENTS
+  passesFilter
 } = require('../src/js/appLogic.js');
+
+const SAMPLE_EVENTS = [
+  {
+    id: "e1",
+    title: "Robotics Club Kickoff",
+    description: "Join us for the first meeting of the year.",
+    location: "Engineering Building",
+    category: "Academic",
+    organization: "Robotics Club",
+    date: "2025-10-15T18:00:00",
+  },
+  {
+    id: "e2",
+    title: "Campus Music Night",
+    description: "Live performances by student bands.",
+    location: "Student Center",
+    category: "Social",
+    organization: "Music Society",
+    date: "2025-10-18T20:00:00",
+  },
+  {
+    id: "e3",
+    title: "Career Fair",
+    description: "Meet employers and practice networking.",
+    location: "Main Hall",
+    category: "Career",
+    organization: "Career Services",
+    date: "2025-11-01T10:00:00",
+  },
+];
 
 
 
