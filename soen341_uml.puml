@@ -1,0 +1,166 @@
+@startuml UNIVENTS - UML Class Diagram
+
+' ============================================
+' CORE DOMAIN CLASSES
+' ============================================
+
+class User {
+  - id: String
+  - email: String
+  - passwordHash: String
+  - role: Role
+  + login(email, password): Boolean
+  + logout(): void
+  + signup(email, password): User
+  + getRole(): Role
+  + isAdmin(): Boolean
+  + isStudent(): Boolean
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+  ORGANIZER
+}
+
+class Session {
+  - userId: String
+  - role: Role
+  - loginTime: Date
+  + isActive(): Boolean
+  + getUserId(): String
+  + getRole(): Role
+  + clear(): void
+}
+
+class Event {
+  - id: String
+  - title: String
+  - description: String
+  - datetime: Date
+  - location: String
+  - category: String
+  - organization: String
+  - capacity: Integer
+  - ticketPrice: Float
+  + create(data): Event
+  + update(data): void
+  + delete(): void
+  + isFull(): Boolean
+  + getRemainingCapacity(): Integer
+  + getAttendees(): List<Attendee>
+}
+
+class Ticket {
+  - id: String
+  - eventId: String
+  - userId: String
+  - qrCode: String
+  - claimDate: Date
+  + claim(userId, eventId): Ticket
+  + generateQRCode(): String
+  + isValid(): Boolean
+  + getQRCode(): String
+}
+
+class Attendee {
+  - userId: String
+  - eventId: String
+  - ticketId: String
+  - checkedIn: Boolean
+  - checkInTime: Date
+  + markCheckedIn(): void
+  + getTicket(): Ticket
+  + getEvent(): Event
+}
+
+class Waitlist {
+  - eventId: String
+  - userId: String
+  - joinDate: Date
+  - position: Integer
+  + join(userId, eventId): void
+  + remove(userId): void
+  + getPosition(userId): Integer
+  + notifyNext(): void
+}
+
+class Calendar {
+  - userId: String
+  - savedEventIds: List<String>
+  + saveEvent(eventId): void
+  + removeEvent(eventId): void
+  + getSavedEvents(): List<Event>
+  + isSaved(eventId): Boolean
+}
+
+' ============================================
+' SERVICE CLASSES
+' ============================================
+
+class AuthService {
+  + login(email, password): Session
+  + signup(email, password, role): User
+  + logout(): void
+  + getCurrentSession(): Session
+  + isAuthenticated(): Boolean
+  + hasRole(role): Boolean
+  + seedUsers(): void
+}
+
+class EventService {
+  + getAllEvents(): List<Event>
+  + getEventById(id): Event
+  + createEvent(data): Event
+  + updateEvent(id, data): Event
+  + deleteEvent(id): void
+  + filterEvents(filters): List<Event>
+  + searchEvents(query): List<Event>
+  + seedEvents(): void
+}
+
+class TicketService {
+  + claimTicket(userId, eventId): Ticket
+  + getTicketsByUser(userId): List<Ticket>
+  + getTicketsByEvent(eventId): List<Ticket>
+  + validateTicket(ticketId): Boolean
+  + hasTicket(userId, eventId): Boolean
+}
+
+class QRCodeGenerator {
+  + generate(data): String
+  + encode(userId, eventId, timestamp): String
+  + createQRImage(data): HTMLElement
+}
+
+' ============================================
+' RELATIONSHIPS
+' ============================================
+
+' User relationships
+User "1" -- "1" Session : has >
+User "1" -- "0..*" Ticket : claims >
+User "1" -- "1" Calendar : owns >
+User "1" -- "0..*" Waitlist : joins >
+User ..> Role : has
+
+' Event relationships
+Event "1" -- "0..*" Ticket : generates >
+Event "1" -- "0..*" Attendee : has >
+Event "1" -- "0..*" Waitlist : manages >
+
+' Ticket relationships
+Ticket "1" -- "1" Attendee : represents >
+Ticket ..> QRCodeGenerator : uses
+
+' Service relationships
+AuthService ..> User : manages
+AuthService ..> Session : creates
+
+EventService ..> Event : manages
+
+TicketService ..> Ticket : manages
+TicketService ..> Event : validates capacity
+TicketService ..> QRCodeGenerator : uses
+
+@enduml
